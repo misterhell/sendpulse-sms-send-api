@@ -17,7 +17,7 @@ class SmsAPI {
 
     token = null
 
-    async sendSMS(text, number) {
+    async sendSMS(text, number, emulate) {
         const res = await this.getBearerToken()
 
         return axios.post(
@@ -29,7 +29,7 @@ class SmsAPI {
                 body: text,
                 sender: SENDPULSE_SENDER,
                 transliterate: SENDPULSE_TRANSLITERATION,
-                emulate: SENDPULSE_EMULATION
+                emulate: emulate || SENDPULSE_EMULATION
             },
             this.createRequestHeaders()
         )
@@ -39,6 +39,7 @@ class SmsAPI {
     // take token from tmp file or load new from auth server if old token is expired
     // then save loaded token to tmp file
     async getBearerToken() {
+        // open token file if it exists
         try {
             const tokenFileData = await fs.readFile(tokenFile)
 
@@ -50,6 +51,13 @@ class SmsAPI {
                     return this.token
                 }
             }
+        } catch (e) {
+            await log.writeLog(`Error: ${e.message}`)
+        }
+
+
+        // get new token and save to file
+        try {
             const r = await axios.post(SENDPULSE_SMS_API_AUTH, {
                 client_id: SENDPULSE_SMS_API_ID,
                 client_secret: SENDPULSE_SMS_API_SECRET,

@@ -1,7 +1,11 @@
 const express = require('express')
-const app = express()
+const { check, validationResult } = require('express-validator');
 const SMSAPI = require('./api');
 const PORT = process.env.PORT
+
+
+const app = express()
+
 
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
@@ -15,6 +19,17 @@ app.get('/', (req, res) => {
 
 
 app.post('/send-sms', async (req, res) => {
+  const validate = ['msg', 'num']
+
+  const errors = validate
+    .filter(k => !req.body.hasOwnProperty(k))
+    .map(k => `${k} is rquired`)
+
+  if (errors.length) {
+    return res.status(422).json({ errors: errors });
+  }
+
+
   const response = {
     succsess: false,
     message: ''
@@ -26,7 +41,7 @@ app.post('/send-sms', async (req, res) => {
       response.succsess = true
     }
   } catch (e) {
-    response.message = e.message
+    response.message = e ? e.message : null
   }
 
   res.json(response)
