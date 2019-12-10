@@ -8,7 +8,9 @@ app.use(express.json())
 
 
 app.get('/', (req, res) => {
-  res.send(`${SMS_API_ID + ' ' + SMS_API_SECRET}`)
+  res.json({
+    health: true
+  })
 })
 
 
