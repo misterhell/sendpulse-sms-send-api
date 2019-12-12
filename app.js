@@ -1,6 +1,7 @@
 const express = require('express')
 const { check, validationResult } = require('express-validator');
 const SMSAPI = require('./api');
+const log = require('./log.js')
 const PORT = process.env.PORT
 
 
@@ -31,14 +32,18 @@ app.post('/send-sms', async (req, res) => {
 
 
   const response = {
-    succsess: false,
+    success: false,
     message: ''
   }
 
   try {
-    const smsResponse = await (new SMSAPI).sendSMS('Ваш код: 121212', '380955603067');
+    const { num, msg } = req.body
+    const smsResponse = await (new SMSAPI).sendSMS(msg, num)
+
     if (smsResponse.data.result) {
-      response.succsess = true
+      await log.writeLog(`SUCCESS SMS SEND TO: ${num}`)
+      response.success = true
+      response.message = `sended to ${num}`
     }
   } catch (e) {
     response.message = e ? e.message : null

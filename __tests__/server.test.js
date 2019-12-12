@@ -16,7 +16,7 @@ test('Check send SMS api func', async done => {
         num: '380955603067'
     })
 
-    expect(resp.data).toHaveProperty('succsess', true)
+    expect(resp.data).toHaveProperty('success', true)
 
     done()
 }, 6000)
@@ -24,22 +24,8 @@ test('Check send SMS api func', async done => {
 
 test('Validation error num', async (done, fail) => {
     try {
-        await axios.post(`http://127.0.0.1:${PORT}/send-sms`, {
+        const resp = await axios.post(`http://127.0.0.1:${PORT}/send-sms`, {
             msg: 'cjjjj'
-        })
-    }
-    catch (e) {
-        done()
-    }
-
-    fail()
-}, 6000)
-
-
-test('Validation error msg', async (done, fail) => {
-    try {
-        await axios.post(`http://127.0.0.1:${PORT}/send-sms`, {
-            num: '380955603067'
         })
     }
     catch (e) {
