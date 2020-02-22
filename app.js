@@ -1,5 +1,4 @@
 const express = require('express')
-const { check, validationResult } = require('express-validator');
 const SMSAPI = require('./api');
 const log = require('./log.js')
 const PORT = process.env.PORT
@@ -19,7 +18,7 @@ app.get('/', (req, res) => {
 })
 
 
-app.post('/send-sms', async (req, res) => {
+app.post('/send-sms', (req, res) => {
   const validate = ['msg', 'num']
 
   const errors = validate
@@ -36,22 +35,25 @@ app.post('/send-sms', async (req, res) => {
     message: ''
   }
 
-  try {
-    const { num, msg } = req.body
-    const smsResponse = await (new SMSAPI).sendSMS(msg, num)
+  const { num, msg } = req.body;
 
-    if (smsResponse.data.result) {
-      await log.writeLog(`SUCCESS SMS SEND TO: ${num}`)
-      response.success = true
-      response.message = `sended to ${num}`
-    }
-  } catch (e) {
-    response.message = e ? e.message : null
-  }
+  (new SMSAPI).sendSMS(msg, num)
+    .then(resp => {
+      if (resp.data.result) {
+        log.writeLog(`SUCCESS SMS SEND TO: ${num}, ${JSON.stringify(resp.data)}`)
+        response.success = true
+        response.message = `sended to ${num}`
+      }
+    })
+    .catch(e => {
+      log.writeLog(`ERROR! SMS SEND TO: ${num}, ${e.message}`)
+      response.message = e ? e.message : null
+    })
 
   res.json(response)
   res.end()
 })
+
 
 
 

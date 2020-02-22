@@ -18,11 +18,14 @@ class SmsAPI {
     token = null
 
     async sendSMS(text, number, emulate) {
-        const res = await this.getBearerToken()
 
-        return axios.post(
-            SENDPULSE_SMS_API_SEND_SMS,
-            {
+        try {
+            await this.getBearerToken()
+
+
+            log.writeLog(`
+            URL: ${SENDPULSE_SMS_API_SEND_SMS}, 
+            params: ${JSON.stringify({
                 phones: [
                     number
                 ],
@@ -30,9 +33,29 @@ class SmsAPI {
                 sender: SENDPULSE_SENDER,
                 transliterate: SENDPULSE_TRANSLITERATION,
                 emulate: emulate || SENDPULSE_EMULATION
-            },
-            this.createRequestHeaders()
-        )
+            })}, 
+            headers:
+                ${JSON.stringify(this.createRequestHeaders())}
+            `)
+
+            const apiResponse = await axios.post(
+                SENDPULSE_SMS_API_SEND_SMS,
+                {
+                    phones: [
+                        number
+                    ],
+                    body: text,
+                    sender: SENDPULSE_SENDER,
+                    transliterate: SENDPULSE_TRANSLITERATION,
+                    emulate: emulate || SENDPULSE_EMULATION
+                },
+                this.createRequestHeaders()
+            )
+
+            return apiResponse
+        } catch (e) {
+            return null
+        }
     }
 
 
@@ -48,7 +71,6 @@ class SmsAPI {
                 const dateNow = Date.now()
                 if (tokenData.expires > dateNow) {
                     this.token = tokenData
-                    return this.token
                 }
             }
         } catch (e) {
@@ -58,6 +80,8 @@ class SmsAPI {
 
         // get new token and save to file
         try {
+            await log.writeLog('trying to get token')
+
             const r = await axios.post(SENDPULSE_SMS_API_AUTH, {
                 client_id: SENDPULSE_SMS_API_ID,
                 client_secret: SENDPULSE_SMS_API_SECRET,
@@ -69,7 +93,6 @@ class SmsAPI {
             this.token = token
             await this.saveTokenToFile(this.token)
 
-            return this.token = token
         } catch (e) {
             await log.writeLog(`Error: ${e.message}`)
         }

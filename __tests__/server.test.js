@@ -13,7 +13,7 @@ test('Check API work', async done => {
 test('Check send SMS api func', async done => {
     const resp = await axios.post(`http://127.0.0.1:${PORT}/send-sms`, {
         msg: 'cjjjj',
-        num: '380955603067'
+        num: '9281343448'
     })
 
     expect(resp.data).toHaveProperty('success', true)
@@ -22,7 +22,7 @@ test('Check send SMS api func', async done => {
 }, 6000)
 
 
-test('Validation error num', async (done, fail) => {
+test('Validation error num', async (done) => {
     try {
         const resp = await axios.post(`http://127.0.0.1:${PORT}/send-sms`, {
             msg: 'cjjjj'
@@ -32,5 +32,5 @@ test('Validation error num', async (done, fail) => {
         done()
     }
 
-    fail()
+    // done()
 }, 6000)

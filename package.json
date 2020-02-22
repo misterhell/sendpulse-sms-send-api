@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon --inspect=0.0.0.0 app.js",
+    "start": "node --inspect=0.0.0.0 app.js",
     "test": "jest"
   },
   "dependencies": {
